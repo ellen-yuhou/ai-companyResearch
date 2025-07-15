@@ -360,7 +360,8 @@ def get_SERP_from_google_linkedin_search(company):
         "gs_lp": "Egdnd3Mtd2l6Ii1zaXRlOmxpbmtlZGluLmNvbS9pbiBBbWVyaWNhbiBEcmFwZXJ5IFN5c3RlbXNIi94CULIMWNzJAnABeACQAQCYAYcDoAGmKqoBBjItMjEuMbgBA8gBAPgBAfgBApgCBqACjQuoAgrCAgcQIxgnGOoCwgILEAAYgAQYkQIYigXCAg4QLhiABBixAxiDARjUAsICCBAuGIAEGOUEwgIFEAAYgATCAggQLhiABBixA8ICERAuGIAEGLEDGNEDGIMBGMcBwgILEAAYgAQYsQMYgwHCAgsQLhiABBjRAxjHAcICChAAGIAEGEMYigXCAgsQLhiABBjHARivAcICDhAAGIAEGLEDGIMBGIoFwgIQEC4YgAQY0QMYQxjHARiKBcICDRAAGIAEGLEDGEMYigXCAggQABiABBixA8ICDhAuGIAEGLEDGNEDGMcBwgILEC4YgAQYsQMYgwHCAgcQABiABBgKmAML8QWFCQ-8zqZFQJIHBzEuMC40LjGgB_8-sgcFMi00LjG4B4ELwgcFMi01LjHIBx8",
         "sclient": "gws-wiz"
     }
-    response = requests.get(url, headers=headers, cookies=cookies, params=params,proxies=proxies)
+    # response = requests.get(url, headers=headers, cookies=cookies, params=params,proxies=proxies)
+    response = requests.get(url, headers=headers, cookies=cookies, params=params)
 
     # print("goolge result: ", response.text)
     # print(response)  
