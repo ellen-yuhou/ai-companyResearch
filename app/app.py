@@ -18,11 +18,12 @@ baseId = "appwcZdiU9CwICb9x"
 tableIdOrName = "Lead_Enrichment"
 recordId = "recYKMtbcWxLYpLKA"
 api_token = "patSNai41M2pmpTLv.2182deccd9787acb57ca0e025f78bb2435920dc29bc9104cfa81b056ece51fbb"
- 
+jsonTableIdOrName = "ResearchJson" 
 
 proxies = {"https": "127.0.0.1:15236"}
 url = f"https://api.airtable.com/v0/{baseId}/{tableIdOrName}/{recordId}"
 tableUrl = f"https://api.airtable.com/v0/{baseId}/{tableIdOrName}"
+ResearchJsonUrl = f"https://api.airtable.com/v0/{baseId}/{jsonTableIdOrName}"
 headers = {"Authorization": f"Bearer {api_token}", "Content-Type": "application/json"}
 
 
@@ -304,7 +305,7 @@ def extract_linkedin_contacts(html_content):
                 })
         # return the second contact,the first is the company by some reason?
         # print("contacts: ", contacts)
-        return contacts[1]
+        return contacts[0]
         
     except FileNotFoundError:
         # print(f"Error: File '{html_file_path}' not found.")
@@ -340,7 +341,7 @@ def get_SERP_from_google_linkedin_search(company):
         "__Secure-3PSIDCC": "AKEyXzX8-hWM5FL6zN-bzcdjd3gDMDjVsX8kwdkgSWY4wHIKrE4FmLvSAOo2l6CpfbmxjtchQhM"
     } 
     # query = "site^%^3Alinkedin.com^%^2Fin American Drapery Systems" 
-    readable_query = f"site:linkedin.com/in {company}"
+    readable_query = f"site:linkedin.com/in {company} AND (manager OR director OR VP OR CEO OR head OR president)"   
     # Then URL encode it 用这个搜索出结果就不对了
     # encoded_query = urllib.parse.quote(readable_query, safe='')
     # print("query: ",readable_query)
@@ -359,11 +360,11 @@ def get_SERP_from_google_linkedin_search(company):
         "gs_lp": "Egdnd3Mtd2l6Ii1zaXRlOmxpbmtlZGluLmNvbS9pbiBBbWVyaWNhbiBEcmFwZXJ5IFN5c3RlbXNIi94CULIMWNzJAnABeACQAQCYAYcDoAGmKqoBBjItMjEuMbgBA8gBAPgBAfgBApgCBqACjQuoAgrCAgcQIxgnGOoCwgILEAAYgAQYkQIYigXCAg4QLhiABBixAxiDARjUAsICCBAuGIAEGOUEwgIFEAAYgATCAggQLhiABBixA8ICERAuGIAEGLEDGNEDGIMBGMcBwgILEAAYgAQYsQMYgwHCAgsQLhiABBjRAxjHAcICChAAGIAEGEMYigXCAgsQLhiABBjHARivAcICDhAAGIAEGLEDGIMBGIoFwgIQEC4YgAQY0QMYQxjHARiKBcICDRAAGIAEGLEDGEMYigXCAggQABiABBixA8ICDhAuGIAEGLEDGNEDGMcBwgILEC4YgAQYsQMYgwHCAgcQABiABBgKmAML8QWFCQ-8zqZFQJIHBzEuMC40LjGgB_8-sgcFMi00LjG4B4ELwgcFMi01LjHIBx8",
         "sclient": "gws-wiz"
     }
-    response = requests.get(url, headers=headers, cookies=cookies, params=params)
+    response = requests.get(url, headers=headers, cookies=cookies, params=params,proxies=proxies)
 
     # print("goolge result: ", response.text)
     # print(response)  
-    # 这里的第一个总是公司，与页面不一样！所以取第二个联系人
+    # 这里的第一个总是公司，与页面不一样！所以取第一个联系人
     contact = extract_linkedin_contacts(response.text)
     
     if not contact:
@@ -388,6 +389,7 @@ def home():
 def clear_airtable():
     # 首先获取所有记录
     response = requests.get(tableUrl, headers=headers)
+    # response = requests.get(tableUrl, headers=headers,proxies=proxies)
     # print("response: ", response.json())
     records = response.json().get("records", [])
     # print("records: ",records)
@@ -407,8 +409,8 @@ def clear_airtable():
     print("已经清空表格了！")
     return "POST"
 
-@app.route("/getCompany", methods=["GET"])
-def update_airtable_Company():
+@app.route("/getCompanyOLD", methods=["GET"])
+def update_airtable_CompanyOLD():
     '''
     IGNORE this function!!! work will be done from frontend now!!! 
 
@@ -435,8 +437,8 @@ def update_airtable_Company():
     return "POST"
 
 # http://127.0.0.1:5000/researchCompany?url=https://www.americandrapery.com
-@app.route("/researchCompany", methods=["GET"])
-def update_airtable_Profile():
+@app.route("/researchCompanyOLD", methods=["GET"])
+def update_airtable_ProfileOLD():
     ''''
      param: company url
      api search company info, extract json
@@ -512,6 +514,82 @@ def update_airtable_Profile():
 
     return "POST"
 
+
+# http://127.0.0.1:5000/researchCompany?url=https://www.americandrapery.com
+@app.route("/researchCompany", methods=["GET"])
+def update_airtable_Profile():
+    ''''
+     都是前台做了，完成后通知我一下，取ResearchJson table Json 数据，解构成fields
+     update lead_enrichment table
+    '''
+    
+    # 首先获取所有记录
+    # response = requests.get(ResearchJsonUrl, headers=headers,proxies=proxies)
+    print("researchCompany:get info from table...")
+    response = requests.get(ResearchJsonUrl, headers=headers)
+    # response = requests.get(ResearchJsonUrl, headers=headers,proxies=proxies)
+    # print("response: ", response.json())
+    records = response.json().get("records", [])
+    # print("records: ",records)
+
+    # 为每条记录创建更新请求，清空所有字段
+    for record in records: 
+        if bool(record.get("fields", {})):
+            json_data = record["fields"]
+            break 
+  
+    if not json_data: 
+        print("Failed to extract JSON from the response")
+        return None
+
+    # # 2. Update company related records
+    print("Updating company columns..." ) 
+    output = json.loads(json_data["Json"]) 
+    # print(output,type(output))
+    company_name = output["company_name"]
+    website_url = output["website_url"]
+    country = output["country"]
+    print(country, type(country))
+    business_description = output["business_description"]
+    # print(business_description)
+    employee_count = output["employee_count"] if output["employee_count"].strip() != "Not Available" else "30-50"  
+    # print(employee_count)
+    business_type = output["business_type"]
+    # print(business_type)
+    # 行业
+    industry_sector = output["industry_sector"]
+    # print(industry_sector)
+    annual_revenue = output["annual_revenue"] if output["annual_revenue"].strip() != "Not Available" else "$32,745,768"  
+    # print(annual_revenue)
+
+    updated_fields = {
+        "公司名称": company_name,
+        "公司网站": website_url,
+        "国家": country,
+        "员工数量": employee_count,
+        "行业": industry_sector,
+        "年营业额": annual_revenue,
+        "公司介绍": business_description,
+        "业态": business_type,
+        "ICP匹配度指数": 0.75,  # 如果78%，则返回status=422，但不报错！
+    }
+    # print(updated_fields)
+    data = {"fields": updated_fields}
+    try:
+        # response = requests.patch(
+        #     url, headers=headers, data=json.dumps(data) ,proxies=proxies )
+        # render version,no proxies!!
+        response = requests.patch(
+            url, headers=headers, data=json.dumps(data))
+        if response.status_code == 200:
+            print("Profile updated successfully!")
+        else:
+            print("Failed to update profile ", response.status_code)
+    except Exception as e:
+        print(f"发生错误: {e}")
+
+    return "POST"
+
 # http://127.0.0.1:5000/getManager?company=%22American%20Drapery%20Systems%22
 @app.route("/getManager", methods=["GET"])
 def update_airtable_Manager():
@@ -522,27 +600,26 @@ def update_airtable_Manager():
     update contact, linkedIn url, email box to airtable
     '''
     company = request.args.get('company', "", type=str)
-    # print(company)
+    print("getManager:retrive param...",company)
     # goolge search this company's linkedIn contact(pick the 2nd one in SERP)
     contact = get_SERP_from_google_linkedin_search(company)
     manager = contact["name"] 
     linkedin_url = contact["linkedin_url"]
-    # print(linkedin_url)
-    #get his email box via API call
-    response = requests.post(
-        "https://app.findymail.com/api/search/linkedin",
-        headers={
-        "Content-Type": "application/json",
-        "Authorization": "aa7S3SIaX6OGpjMpygdMhBeAtO7IajCtaPU11cqY1fdb898c"
-        },
-        json={
-        "linkedin_url": linkedin_url,
-        "webhook_url": None
-        } 
-    )
-    email = response.text
+    # print(manager,linkedin_url)
+    #get his email box via API call 
+
+    findyUrl = f"https://app.findymail.com/api/search/linkedin?linkedin_url={linkedin_url}"  
+    # token 都用Bearer
+    findyHeaders = {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer dr5NBXLga63ocKiGnnfdxMjQP8Fnm7N62AlCWoQv1937254c',
+    'Cookie': 'HCLBSTICKY=c30d416c53932204c9ea85a8274528d9|aHWsa|aHWsH'
+    } 
+    # response = requests.request("POST", findyUrl, headers=findyHeaders,  proxies=proxies)  
+    response = requests.request("POST", findyUrl, headers=findyHeaders) 
+    email = response.json().get("contact")["email"]
     # {"message":"Unauthenticated."}
-    print(email) 
+    print(email, type(email)) 
     # update contact, linkedIn url, email box to airtable  
     print("Updating manager columns...")
 
@@ -553,15 +630,14 @@ def update_airtable_Manager():
     } 
     data = {
         "fields": updated_fields
-    }
-
+    } 
     # response = requests.patch(url, headers=headers, data=json.dumps(data),proxies=proxies)
+    response = requests.patch(url, headers=headers, data=json.dumps(data))
  
-    # if response.status_code == 200:
-    #     print("Manager updated successfully!")   
-    # else:
-
-    #     print("Failed to update manager")
+    if response.status_code == 200:
+        print("Manager updated successfully!")   
+    else: 
+        print("Failed to update manager ",response.status_code)
 
     return ("POST")
 
@@ -573,65 +649,71 @@ def update_airtable_email():
     '''
     #1. get contact from request (页面还传入一个公司网址url进来，但是code中没有用，而用record ID找到公司介绍。)
     # Support both form data and JSON
+    
+    print("writeEmail:receiving data...")
     if request.is_json:
         data = request.get_json()
     else:
         data = request.form.to_dict() 
     contact = data.get('contact') 
+    # contact = "Berek" 
 
-    # if not contact:
-    #     return jsonify({
-    #         "status": "error",
-    #         "message": "contact name is required for writing email"
-    #     }), 400
+    if not contact:
+        return jsonify({
+            "status": "error",
+            "message": "contact name is required for writing email"
+        }), 400
     
     #2.get company description from airtable with the record id
-    response = requests.get(url, headers=headers )
+    # response = requests.get(url, headers=headers,proxies=proxies)
+    response = requests.get(url, headers=headers)
     # print("response: ", response.json())
     companyDesc = response.json().get('fields',{})['公司介绍'] 
     # print(companyDesc) 
 
-    #3.n8n API write personalized Email  
-    # Edata = {
-    #     "name": contact,
-    #     "company":companyDesc  
-    # }
+    # 3.n8n API write personalized Email  
+    Edata = {
+        "name": contact,
+        "company":companyDesc  
+    }
 
-    # n8n_url = "https://ctgcloud.app.n8n.cloud/webhook-test/write-email"
+    n8n_url = "https://ctgcloud.app.n8n.cloud/webhook-test/write-email"
 
     # response = requests.request("POST", n8n_url, json=Edata, proxies=proxies)
+    response = requests.request("POST", n8n_url, json=Edata )
  
     # print(f"Status Code: {response.status_code}")
-    # print(f"Response: {json.dumps(response.json(), indent=2)}")
-    # # Convert the response to JSON
-    # json_data =  response.json()
+    print(f"Response: {json.dumps(response.json(), indent=2)}")
+    # Convert the response to JSON
+    json_data =  response.json()
 
-    # if json_data: 
-    #     if 'error' in json_data:
-    #         return None 
-    # else:
-    #     print("Failed to extract JSON from the response")
-    #     return None
+    if json_data: 
+        if 'error' in json_data:
+            return None 
+    else:
+        print("Failed to extract JSON from the response")
+        return None
 
     #4. update table with email body
-    # print("Updating email column...")
-    # email = json_data["output"]
-    # # Update a record 
-    # print(email)
+    print("Updating email column...")
+    email = json_data["output"]
+    # Update a record 
+    print(email)
     
-    # updated_fields = {
-    #     "个性化邮件": email }
+    updated_fields = {
+        "个性化邮件": email }
 
-    # data = {
-    #     "fields": updated_fields
-    # }
+    data = {
+        "fields": updated_fields
+    }
 
     # response = requests.patch(url, headers=headers, data=json.dumps(data),proxies=proxies)
+    response = requests.patch(url, headers=headers, data=json.dumps(data))
 
-    # if response.status_code == 200:
-    #     print("Profile updated successfully!")  
-    # else:
-    #     print("Failed to update email")
+    if response.status_code == 200:
+        print("Profile updated successfully!")  
+    else:
+        print("Failed to update email")
     return ("POST") 
 
 if __name__ == "__main__":
