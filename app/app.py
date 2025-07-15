@@ -11,12 +11,14 @@ import urllib
 
 app = Flask(__name__)
 # r'/*' 是通配符，让所有的 URL 都允许跨域请求
-CORS(app, resources=r"/*")
+# CORS(app, resources=r"/*")
+CORS(app)  # This handles OPTIONS requests automatically
 
 # 替换以下变量为实际的值
+# production version指向Lead_Enrichment_Test表格
 baseId = "appwcZdiU9CwICb9x"
-tableIdOrName = "Lead_Enrichment"
-recordId = "recYKMtbcWxLYpLKA"
+tableIdOrName = "Lead_Enrichment_Test"
+recordId = "recishc51utCSUfw6"
 api_token = "patSNai41M2pmpTLv.2182deccd9787acb57ca0e025f78bb2435920dc29bc9104cfa81b056ece51fbb"
 jsonTableIdOrName = "ResearchJson" 
 
@@ -678,13 +680,13 @@ def update_airtable_email():
         "company":companyDesc  
     }
 
-    n8n_url = "https://ctgcloud.app.n8n.cloud/webhook-test/write-email"
+    n8n_url = "https://ctgcloud.app.n8n.cloud/webhook/write-email"
 
     # response = requests.request("POST", n8n_url, json=Edata, proxies=proxies)
     response = requests.request("POST", n8n_url, json=Edata )
  
     # print(f"Status Code: {response.status_code}")
-    print(f"Response: {json.dumps(response.json(), indent=2)}")
+    # print(f"Response: {json.dumps(response.json(), indent=2)}")
     # Convert the response to JSON
     json_data =  response.json()
 
@@ -699,7 +701,7 @@ def update_airtable_email():
     print("Updating email column...")
     email = json_data["output"]
     # Update a record 
-    print(email)
+    # print(email)
     
     updated_fields = {
         "个性化邮件": email }
