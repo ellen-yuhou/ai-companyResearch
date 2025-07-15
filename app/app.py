@@ -10,7 +10,7 @@ import urllib
  
 
 app = Flask(__name__)
-# r'/*' 是通配符，让本服务器所有的 URL 都允许跨域请求
+# r'/*' 是通配符，让所有的 URL 都允许跨域请求
 CORS(app, resources=r"/*")
 
 # 替换以下变量为实际的值
@@ -517,7 +517,7 @@ def update_airtable_ProfileOLD():
 
 
 # http://127.0.0.1:5000/researchCompany?url=https://www.americandrapery.com
-@app.route("/researchCompany", methods=["GET"])
+@app.route("/researchCompany", methods=["GET","POST"])
 def update_airtable_Profile():
     ''''
      都是前台做了，完成后通知我一下，取ResearchJson table Json 数据，解构成fields
@@ -589,10 +589,10 @@ def update_airtable_Profile():
     except Exception as e:
         print(f"发生错误: {e}")
 
-    return "POST"
+    return {"status": "success"}
 
 # http://127.0.0.1:5000/getManager?company=%22American%20Drapery%20Systems%22
-@app.route("/getManager", methods=["GET"])
+@app.route("/getManager", methods=["GET","POST"])
 def update_airtable_Manager():
     '''
     param: company name
@@ -640,7 +640,7 @@ def update_airtable_Manager():
     else: 
         print("Failed to update manager ",response.status_code)
 
-    return ("POST")
+    return {"status": "success"}
 
 @app.route("/writeEmail", methods=["GET", "POST"])
 def update_airtable_email():
@@ -715,7 +715,7 @@ def update_airtable_email():
         print("Profile updated successfully!")  
     else:
         print("Failed to update email")
-    return ("POST") 
+    return {"status": "success"}
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0")  # 启用调试模式
