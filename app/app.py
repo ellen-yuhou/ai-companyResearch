@@ -6,7 +6,8 @@ import time
 import re 
 from bs4 import BeautifulSoup
 import os
-import urllib 
+import urllib
+from chatApi import CTAPI
  
 
 app = Flask(__name__)
@@ -718,6 +719,34 @@ def update_airtable_email():
     else:
         print("Failed to update email")
     return {"status": "success"}
+
+# chatwoot create message hook，收到后根据内容创建interactive messages
+@app.route("/create_chatMsg", methods=["GET", "POST"])
+def create_chat_interactive_msg():
+    print("entering")
+    get_request_body = request.get_json()
+    print("request data:", get_request_body, type(get_request_body))
+    if get_request_body["event"] != "message_created":
+        return "POST"
+    conversationId = get_request_body["conversation"]["id"]
+    messageType = get_request_body["message_type"]
+    content = get_request_body["content"]
+    print(conversationId, messageType, content)
+    if messageType != "outgoing":
+        return "POST"
+    ctApi = CTAPI()
+    if "show cards-101" in content or "cards-101" in content:
+        ctApi.create_msg_card(conversationId)
+    elif "show articles-101" in content or "articles-101" in content:
+        ctApi.create_msg_article(conversationId)
+    elif "show select-101" in content or "select-101" in content:
+        ctApi.create_msg_select(conversationId)
+    elif "show links-101" in content or "links-101" in content:
+        ctApi.create_msg_link(conversationId)
+    else:
+        return "POST"
+    return "POST"
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0")  # 启用调试模式
