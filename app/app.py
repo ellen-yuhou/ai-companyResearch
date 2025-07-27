@@ -7,7 +7,7 @@ import re
 from bs4 import BeautifulSoup
 import os
 import urllib
-from chatApi import CTAPI
+from .chatApi import CTAPI
  
 
 app = Flask(__name__)
