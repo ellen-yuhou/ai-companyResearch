@@ -60,7 +60,8 @@ class CTAPI:
         }) 
         url = self.cloud_url + str(conversationID) + "/messages"
         print(url)
-        response = requests.request("POST", url, headers=self.cloud_headers, data=payload,proxies=self.proxies) 
+        # response = requests.request("POST", url, headers=self.cloud_headers, data=payload,proxies=self.proxies) 
+        response = requests.request("POST", url, headers=self.cloud_headers, data=payload) 
         print(response.text)
 
     def create_msg_article(self,conversationID): 
@@ -79,7 +80,8 @@ class CTAPI:
         }) 
         url = self.cloud_url + str(conversationID) + "/messages"
         print(url)
-        response = requests.request("POST", url, headers=self.cloud_headers, data=payload,proxies=self.proxies )
+        # response = requests.request("POST", url, headers=self.cloud_headers, data=payload,proxies=self.proxies )
+        response = requests.request("POST", url, headers=self.cloud_headers, data=payload)
 
         print(response.text)
 
@@ -101,7 +103,8 @@ class CTAPI:
         }) 
         url = self.cloud_url + str(conversationID) + "/messages"
         print(url)
-        response = requests.request("POST", url, headers=self.cloud_headers, data=payload,proxies=self.proxies )
+        # response = requests.request("POST", url, headers=self.cloud_headers, data=payload,proxies=self.proxies )
+        response = requests.request("POST", url, headers=self.cloud_headers, data=payload)
 
         print(response.text)
 
@@ -120,6 +123,7 @@ class CTAPI:
         }) 
         url = self.cloud_url + str(conversationID) + "/messages"
         print(url)
-        response = requests.request("POST", url, headers=self.cloud_headers, data=payload,proxies=self.proxies )
+        # response = requests.request("POST", url, headers=self.cloud_headers, data=payload,proxies=self.proxies )
+        response = requests.request("POST", url, headers=self.cloud_headers, data=payload)
 
         print(response.text)
