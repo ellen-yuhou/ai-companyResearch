@@ -1,7 +1,5 @@
 import requests
-import json
- 
-
+import json 
 
 class CTAPI:
     def __init__(self): 
@@ -12,9 +10,10 @@ class CTAPI:
         self.cloud_account_id = "93650"
 
         # self-host 本机Admin-shoubo   MuspfaBBdvmah2sMi84AvCZ3  
-        self.host_url = f"https://seemingly-deep-polecat.ngrok-free.app/api/v1/accounts/2/conversations/"
-        self.host_access_token ="MuspfaBBdvmah2sMi84AvCZ3"
-        self.host_account_id = "2"
+        # chat.tripdoer.com hosted on vps hostingers
+        self.host_url = f"https://chat.tripdoer.com/api/v1/accounts/1/conversations/"
+        self.host_access_token = "3vJMVeUYe1FdAr47pHfhvomU" 
+        self.host_account_id = "1"
 
         self.cloud_headers = {
             'Content-Type': 'application/json',
@@ -58,10 +57,11 @@ class CTAPI:
         "content": "card message",
         "private": False
         }) 
-        url = self.cloud_url + str(conversationID) + "/messages"
+        url = self.host_url + str(conversationID) + "/messages"
         print(url)
         # response = requests.request("POST", url, headers=self.cloud_headers, data=payload,proxies=self.proxies) 
-        response = requests.request("POST", url, headers=self.cloud_headers, data=payload) 
+        # render, use self hosted on vps
+        response = requests.request("POST", url, headers=self.host_headers, data=payload) 
         print(response.text)
 
     def create_msg_article(self,conversationID): 
@@ -78,10 +78,10 @@ class CTAPI:
             },
             "private":False
         }) 
-        url = self.cloud_url + str(conversationID) + "/messages"
+        url = self.host_url + str(conversationID) + "/messages"
         print(url)
         # response = requests.request("POST", url, headers=self.cloud_headers, data=payload,proxies=self.proxies )
-        response = requests.request("POST", url, headers=self.cloud_headers, data=payload)
+        response = requests.request("POST", url, headers=self.host_headers, data=payload)
 
         print(response.text)
 
@@ -101,10 +101,10 @@ class CTAPI:
             },
             "private":False
         }) 
-        url = self.cloud_url + str(conversationID) + "/messages"
+        url = self.host_url + str(conversationID) + "/messages"
         print(url)
         # response = requests.request("POST", url, headers=self.cloud_headers, data=payload,proxies=self.proxies )
-        response = requests.request("POST", url, headers=self.cloud_headers, data=payload)
+        response = requests.request("POST", url, headers=self.host_headers, data=payload)
 
         print(response.text)
 
@@ -121,9 +121,9 @@ class CTAPI:
             },
             "private":False
         }) 
-        url = self.cloud_url + str(conversationID) + "/messages"
+        url = self.host_url + str(conversationID) + "/messages"
         print(url)
         # response = requests.request("POST", url, headers=self.cloud_headers, data=payload,proxies=self.proxies )
-        response = requests.request("POST", url, headers=self.cloud_headers, data=payload)
+        response = requests.request("POST", url, headers=self.host_headers, data=payload)
 
         print(response.text)
